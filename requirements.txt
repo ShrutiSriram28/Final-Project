@@ -2,6 +2,7 @@ grpcio
 grpcio-tools 
 protobuf 
 python-json-logger 
-pytest pytest-timeout 
+pytest 
+pytest-timeout 
 python-dotenv 
 setproctitle
