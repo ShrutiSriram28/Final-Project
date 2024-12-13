@@ -694,11 +694,6 @@ class RaftNode(raft_pb2_grpc.RaftNodeServicer):
         if self.current_state != NodeState.LEADER:
             print("Not leader, skipping commit check")
             return False
-        
-        # First check if we have quorum available
-        # if not self._has_quorum_available():
-        #     print("No quorum available, cannot commit entries")
-        #     return False
             
         servers = Config.load_servers()
         cluster_size = Config.load_cluster_size() or len(servers)
