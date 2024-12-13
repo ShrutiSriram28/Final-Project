@@ -1,0 +1,104 @@
+syntax = "proto3";
+
+option go_package = "../raftkv";
+package raftkv;
+
+message State {
+    int32 term = 1;
+    bool isLeader = 2; 
+}
+
+message KeyValue {
+    string key = 1;
+    string value = 2;
+    int64 ClientId = 3;
+    int64 RequestId = 4;
+}
+
+message GetKey {
+    string key = 1;
+    int64 ClientId = 2;
+    int64 RequestId = 3;
+}
+
+message Reply {
+    bool wrongLeader = 1;
+    string error = 2;
+    string value = 3;
+}
+
+message Empty {
+
+}
+
+message IntegerArg {
+    int32 arg = 1;
+}
+
+message RequestVoteArgs {
+	int32 Term = 1;
+	int32 CandidateId=2;
+	int32 LastLogIndex=3;
+	int32 LastLogTerm=4;
+}
+
+message RequestVoteReply{
+	int32 Term=1;
+	bool VoteGranted=2;
+}
+
+message LogEntry {
+	int32 Index=1;
+	int32 Term=2;
+	string Command=3;
+    int64 ClientId = 4;
+    int64 RequestId=5;
+    string Key =6;
+    string Value = 7;
+}
+
+message AppendEntriesArgs {
+	int32 Term = 1; 
+	int32 LeaderId = 2;
+	int32 PrevLogIndex = 3;
+	repeated LogEntry Entries = 4;
+	int32 LeaderCommit = 5;
+    int32 PrevLogTerm = 6;
+}
+
+message AppendEntriesReply {
+	int32 Term=1;
+	bool Success=2;
+	int32 NextTryIndex=3;
+}
+
+message InstallSnapshotArgs {
+	int32 Term=1;
+	int32 LeaderId=2;
+	int32 LastIncludedIndex=3;
+	int32 LastIncludedTerm=4;
+	bytes Data=5;
+}
+
+message InstallSnapshotReply {
+	int32 Term=1;
+}
+
+service KeyValueStore {
+    rpc GetState(Empty) returns (State) {};
+    rpc Get(GetKey) returns (Reply) {};
+    rpc Put(KeyValue) returns (Reply){};
+    rpc Replace(KeyValue) returns (Reply){};
+}
+
+service Raft {
+    rpc RequestVoteRPC(RequestVoteArgs) returns (RequestVoteReply) {};
+    rpc AppendEntriesRPC(AppendEntriesArgs) returns (AppendEntriesReply) {};
+    rpc InstallSnapshotRPC(InstallSnapshotArgs) returns (InstallSnapshotReply) {};
+}
+service FrontEnd {
+    rpc Get(GetKey) returns (Reply) {};
+    rpc Put(KeyValue) returns (Reply){};
+    rpc Replace(KeyValue) returns (Reply){};
+    rpc StartRaft(IntegerArg) returns (Reply){};
+}
